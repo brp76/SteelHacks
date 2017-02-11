@@ -14,6 +14,7 @@
 int target;
 int correct = 0;
 int score = 0;
+int overall_score = 0;
 int xPos,yPos;
 int North[1] = {0};
 int South[1] = {8};
@@ -43,7 +44,7 @@ void setup() {
   pinMode(Y,INPUT);  //y: 0 < 513 < 1023
   white = strip.Color(255,255,255);
   strip.begin();
-  strip.setBrightness(50); //adjust brightness here
+  strip.setBrightness(60); //adjust brightness here
   strip.show(); // Initialize all pixels to 'off'
 }
 
@@ -55,7 +56,7 @@ void loop() {
     // Pre-game white loading sequence
     theaterChaseLong(strip.Color(64, 64, 64), 50); // white
     // 16 "events" per level, speed increasing for 5 levels
-    level(16, 1250-225*i);
+    level(16, 1000-180*i);
     strip.clear();
     strip.show();
     delay(250);
@@ -66,7 +67,11 @@ void loop() {
     strip.show();
   }
   // End game sequence
-  theaterChaseRainbow(25);
+  if (overall_score >= 0) {
+    theaterChaseRainbow(25);
+  } else {
+     colorWipe(strip.Color(127, 0, 0), 10); // Red
+  }
   strip.clear();
   strip.show();
   delay(1000);
@@ -127,11 +132,13 @@ void level(int n, int wait) {
       strip.clear();
       strip.show();
       score++;
+      overall_score++;
     } else {
       // Display red if correct
       theaterChase(strip.Color(127, 0, 0), 25); // Red
       strip.clear();
       strip.show();
+      overall_score--;
     }
     
     //delay(wait/2);
@@ -200,6 +207,17 @@ void lightDirection(long x, uint16_t i) {
     strip.setPixelColor(13, Wheel(((i * 256 / strip.numPixels())) & 255));
     strip.setPixelColor(14, Wheel(((i * 256 / strip.numPixels())) & 255));
     strip.setPixelColor(15, Wheel(((i * 256 / strip.numPixels())) & 255));
+  }
+}
+
+void colorWipe(uint32_t c, uint8_t wait) {
+  for (uint16_t j=1; j<127; j++) {
+    for(uint16_t i=0; i<strip.numPixels(); i++) {
+      strip.setPixelColor(i,127-j,0,0);
+      strip.show();
+      delay(wait);
+    }
+    delay(wait);
   }
 }
 
